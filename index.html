@@ -227,8 +227,14 @@
   <!-- Modal -->
   <div class="overlay" id="overlay">
     <div class="modal ar">
-      <h3>هناك أشخاص يمرّون في حياتنا كالعابرين، وهناك مَن يتركون بصمة لا تُمحى…
-لو أردتِ أن تكتبي عن شخص غيّر نظرتكِ للحياة وأصبح له مكان مختلف في قلبك، كيف ستصفينه؟⭐</h3>
+<h3>
+  هناك أشخاص يمرّون في حياتنا كالعابرين،<br>
+  وهناك مَن يتركون بصمة لا تُمحى…<br><br>
+  لو أردتِ أن تكتبي عن شخص غيّر نظرتكِ للحياة<br>
+  وأصبح له مكان مختلف في قلبك،<br>
+  كيف ستصفينه؟ ⭐
+</h3>
+
       <textarea id="answerBox" placeholder="اكتبي كل الي ببالك هنا"></textarea>
       <div class="row">
         <button id="cancelAsk" class="glow-btn">إلغاء</button>
@@ -392,7 +398,7 @@ function applyLang(){
   if(currentLang==="EN"){
     if(s3.classList.contains("show")) showLines(liveText,EN_TEXT,"en");
     langStar.textContent="EN";
-    langLabel.textContent="Switch → عربي";
+    langLabel.textContent="Switch → AR";
   } else {
     if(s3.classList.contains("show")) showLines(liveText,AR_TEXT,"ar");
     langStar.textContent="AR";
@@ -422,18 +428,26 @@ overlay.addEventListener("click",(e)=>{ if(e.target===overlay) closeModal() })
 document.addEventListener("keydown",(e)=>{ if(e.key==="Escape") closeModal() })
 
 sendAsk.onclick=()=>{
- const val=answerBox.value.trim();
- if(!val)return;
- const blob=new Blob([val],{type:"text/plain;charset=utf-8"});
- const a=document.createElement("a");
- a.href=URL.createObjectURL(blob);
- a.download="her-answer.txt";
- a.click();
- URL.revokeObjectURL(a.href);
- confettiBurst(innerWidth/2, innerHeight/3);
- closeModal();
- answerBox.value="";
+  const val=answerBox.value.trim();
+  if(!val) return;
+
+  // نرسل النص إلى Formspree
+  fetch("https://formspree.io/f/meolyoqn", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: val   // ← هنا اسم الحقل "message" لازم يطابق اللي موجود بـ Formspree
+    })
+  }).then(()=>{
+    confettiBurst(innerWidth/2, innerHeight/3);
+    closeModal();
+    answerBox.value="";
+    alert("✓ وصلت إجابتك!");
+  }).catch(err=>{
+    alert("⚠️ صار خطأ: " + err);
+  });
 };
+
 document.addEventListener("keydown",(e)=>{ if(e.ctrlKey && e.key==="Enter" && overlay.classList.contains("show")) sendAsk.click() })
 
 // ===== Button ripple effect =====
