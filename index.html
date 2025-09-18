@@ -1,86 +1,646 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>رسالتي</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Fonts: Arabic handwriting & Latin Victorian -->
-  <link href="https://fonts.googleapis.com/css2?family=Lateef:wght@400;600&family=Aref+Ruqaa:wght@400;700&family=Great+Vibes&family=Cormorant+Garamond:wght@600&family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+  <title>Starry Riddle — For You ✨</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --ink:#f5f7ff;
+      --bg1:#1a1a1f;
+      --bg2:#2a2d38;
+      --accent:#ffb3d6;
+      --accent-2:#90e0ff;
+      --btn-bg:linear-gradient(180deg,#555,#777);
+      --btn-border:#ddd;
+      --ease:cubic-bezier(.16,.84,.24,1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+
+    body{
+      height:100%;
+      color:var(--ink);
+      font-family:"Aref Ruqaa",serif;
+      background:linear-gradient(-45deg,var(--bg1),var(--bg2),#20242d,#2c2f3a);
+      background-size:400% 400%;
+      animation:gradmove 20s ease infinite;
+      overflow:hidden;
+    }
+    @keyframes gradmove{
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+
+    #sky{position:fixed;inset:0;z-index:0}
+    .stage{position:relative;z-index:2;min-height:100dvh;display:grid;place-items:center;padding:20px}
+
+    /* Panels */
+    .panel{
+      width:min(820px,92vw);
+      background:rgba(40,40,50,0.55);
+      backdrop-filter:blur(14px) saturate(160%);
+      border-radius:20px;
+      padding:clamp(20px,4vw,36px);
+      box-shadow:0 6px 26px rgba(0,0,0,.45), inset 0 0 22px rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.12);
+      opacity:0;transform:translateY(20px) scale(.97);
+      transition:opacity .8s ease, transform .8s ease;
+    }
+    .panel.show{opacity:1;transform:none}
+    .panel.shake{animation:shake .5s ease}
+    @keyframes shake{10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)}}
+
+    /* Text */
+    .en{font-family:"Cinzel Decorative",serif;direction:ltr;text-align:center;white-space:pre-line;line-height:1.7}
+    .ar{font-family:"Aref Ruqaa",serif;direction:rtl;text-align:center;white-space:pre-line;line-height:2;font-size:18px}
+    h2{font-size:22px;margin-bottom:10px;color:#eee}
+
+    /* Buttons */
+    .glow-btn,.star-btn{
+      appearance:none;border:none;cursor:pointer;
+      font-weight:600;color:#fff;border-radius:999px;
+      background:var(--btn-bg);
+      border:1px solid var(--btn-border);
+      transition:all .3s ease;
+      box-shadow:0 0 10px rgba(255,255,255,.15);
+      position:relative;overflow:hidden
+    }
+    .glow-btn{padding:12px 28px;font-size:15px}
+    .star-btn{width:46px;height:46px;display:grid;place-items:center;font-size:15px;border-radius:50%}
+    .glow-btn:hover,.star-btn:hover{transform:translateY(-2px);box-shadow:0 0 14px rgba(255,255,255,.3)}
+    .glow-btn:active{transform:scale(.96)}
+    .star-btn:active{transform:scale(.92)}
+    .glow-btn:focus-visible,.star-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+    .ripple{position:absolute;border-radius:50%;pointer-events:none;inset:auto;transform:translate(-50%,-50%) scale(0);opacity:.6;background:radial-gradient(circle, rgba(255,255,255,.9) 0%, rgba(255,255,255,.4) 40%, transparent 70%);animation:ripple .7s ease forwards}
+    @keyframes ripple{to{transform:translate(-50%,-50%) scale(6);opacity:0}}
+
+    /* Input */
+    input[type="text"]{
+      padding:12px 14px;
+      border-radius:10px;
+      border:1px solid #aaa;
+      font-size:16px;
+      max-width:280px;
+      background:rgba(255,255,255,0.08);
+      color:#fff;
+      text-align:center;
+    }
+    input[type="text"].ok{border-color:#7efcc1;box-shadow:0 0 0 3px rgba(126,252,193,.15)}
+    input[type="text"].bad{border-color:#ff8a8a;box-shadow:0 0 0 3px rgba(255,138,138,.15)}
+    .inline-note{height:18px;color:#ccc;font-size:13px}
+
+    .center{text-align:center;display:grid;gap:14px}
+    .fade-line{opacity:0;transform:translateY(12px);filter:blur(6px);animation:fadeUp .9s forwards}
+    @keyframes fadeUp{to{opacity:1;transform:none;filter:blur(0)}}
+
+    /* Top buttons */
+    .topbar{position:fixed;top:12px;right:14px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0;transform:translateY(-6px);transition:opacity .6s var(--ease), transform .6s var(--ease)}
+    .wish{position:fixed;top:12px;left:14px;z-index:3;text-align:center;opacity:0;transform:translateY(-6px);transition:opacity .6s var(--ease), transform .6s var(--ease)}
+    .caption{font-size:12px;color:#ccc;opacity:.9}
+    .loaded .topbar,.loaded .wish{opacity:1;transform:none}
+
+    /* Modal */
+    .overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.65);
+      backdrop-filter:blur(8px);display:none;z-index:5;
+      place-items:center;
+    }
+    .overlay.show{display:grid}
+    .modal{
+      background:rgba(30,30,30,.9);
+      border-radius:16px;padding:24px;
+      width:min(600px,90%);
+      max-height:90vh;overflow:auto;
+      box-shadow:0 0 22px rgba(0,0,0,.6);
+      animation:zoomIn .5s ease;
+    }
+    @keyframes zoomIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+    textarea{
+      width:100%;min-height:140px;padding:12px;
+      border-radius:12px;border:1px solid rgba(255,255,255,.2);
+      background:rgba(255,255,255,.05);color:var(--ink);
+      font-size:16px;resize:vertical;
+    }
+    .row{display:flex;justify-content:flex-end;gap:12px;margin-top:14px}
+
+    /* Flash effect */
+    .flash{
+      position:fixed;inset:0;z-index:4;pointer-events:none;
+      background:radial-gradient(circle at center,rgba(255,255,255,.5),transparent 70%);
+      opacity:0;
+    }
+    .flash.show{animation:flashAnim .8s ease}
+    @keyframes flashAnim{
+      0%{opacity:.9}
+      50%{opacity:.4}
+      100%{opacity:0}
+    }
+
+    /* Confetti */
+    .confetti{position:fixed;width:8px;height:8px;pointer-events:none;z-index:6;opacity:0;transform:translate(-50%,-50%) scale(.9)}
+    @keyframes confettiDrop{0%{opacity:1;transform:translate(var(--x),var(--y)) rotate(0) scale(1)} 100%{opacity:0;transform:translate(calc(var(--x) + var(--dx)),calc(var(--y) + var(--dy))) rotate(540deg) scale(.9)}}
+
+    /* Name animation */
+    .name-scene{position:fixed;inset:0;display:none;place-items:center;z-index:5;pointer-events:none;opacity:0;transition:opacity .6s ease}
+    .name-scene.show{display:grid;pointer-events:all;opacity:1;background:radial-gradient(ellipse at center, rgba(0,0,0,.15) 0%, rgba(0,0,0,.55) 60%, rgba(0,0,0,.7) 100%);backdrop-filter:blur(2px) saturate(120%)}
+    .name-stack{display:grid;place-items:center;text-align:center;padding:20px}
+    .name-word{font-family:"Cinzel Decorative",serif;font-weight:700;letter-spacing:.08em;line-height:1;
+      font-size:clamp(28px,8vw,74px);color:var(--ink);filter:drop-shadow(0 2px 6px rgba(0,0,0,.45));
+      direction:ltr; unicode-bidi:isolate; position:relative}
+    .name-letter{display:inline-block;opacity:0;transform:translate(0,0);will-change:transform,opacity}
+    .name-word.glow{animation:nameGlow 1.6s ease-in-out 1}
+    @keyframes nameGlow{0%{text-shadow:0 0 0 rgba(255,255,255,0),0 0 0 var(--accent-2)} 50%{text-shadow:0 0 14px rgba(255,255,255,.7),0 0 40px var(--accent-2)} 100%{text-shadow:0 0 0 rgba(255,255,255,0),0 0 0 var(--accent-2)}}
+    .name-word.shine::after{content:"";position:absolute;inset:-20% -10%;pointer-events:none;
+      background:linear-gradient(120deg, transparent 30%, rgba(255,255,255,.7) 48%, rgba(144,224,255,.55) 52%, transparent 70%);
+      transform:translateX(-160%) skewX(-18deg); mix-blend-mode:screen; filter:blur(2px);
+      animation:shine 1.8s ease 1 forwards}
+    @keyframes shine{to{transform:translateX(160%) skewX(-18deg)}}
+    .name-sub{margin-top:12px;font-size:clamp(14px,2.6vw,20px);opacity:0;transform:translateY(6px);
+      transition:opacity .8s ease, transform .8s ease;color:var(--ink)}
+
+    /* Stage cinematic transitions */
+    .panel.stage-enter{animation:panelEnter 700ms var(--ease) forwards}
+    .panel.stage-exit{animation:panelExit 600ms var(--ease) forwards}
+    @keyframes panelEnter{0%{opacity:0;transform:translateY(24px) scale(.98);filter:blur(8px)}100%{opacity:1;transform:none;filter:blur(0)}}
+    @keyframes panelExit{0%{opacity:1;transform:none;filter:blur(0)}100%{opacity:0;transform:translateY(-14px) scale(.98);filter:blur(6px)}}
+
+    @media(prefers-reduced-motion:reduce){
+      body{animation:none}
+      .fade-line,.panel,.flash{animation:none}
+      .glow-btn,.star-btn{transition:none}
+    }
+
+    @media(max-width:600px){.ar,.en{font-size:15px;padding:0 8px}}
+  </style>
 </head>
-<body class="sig-left"><!-- بدّل إلى sig-left لو تريد الختم يسار -->
-  <main class="stage" aria-label="رسالة تفاعلية">
-    <button class="envelope3d" id="envelope" aria-label="اضغط 3 مرات لفتح الظرف">
-      <span class="env env-back" aria-hidden="true"></span>
-      <span class="letter-slot" aria-hidden="true"></span>
-      <span class="env env-front" aria-hidden="true"></span>
-      <span class="env env-flap" aria-hidden="true"></span>
-      <span class="env-ribbon" aria-hidden="true"></span>
-      <span class="env-ornaments" aria-hidden="true"></span>
-      <span class="bow" id="bow" aria-hidden="true">
-        <span class="loop left"></span>
-        <span class="loop right"></span>
-        <span class="tail left"></span>
-        <span class="tail right"></span>
-        <span class="knot"></span>
-      </span>
-    </button>
+<body>
+  <canvas id="sky"></canvas>
+  <div class="flash" id="flash"></div>
+  <!-- Name animation overlay -->
+  <div id="nameScene" class="name-scene">
+    <div class="name-stack">
+      <div id="nameWord" class="name-word"></div>
+      <div id="nameSub" class="name-sub">صح هذا اليوم الي شفتج بي</div>
+    </div>
+  </div>
 
-    <!-- Portrait letter -->
-    <section class="letter portrait" id="letter" aria-live="polite">
-      <div class="paper">
-        <div class="paper-inner">
-          <!-- Wax seal header (top decorative) -->
-          <div class="wax-seal header" id="waxSeal" aria-hidden="true">
-            <svg class="seal-svg" viewBox="0 0 100 100" aria-hidden="true">
-              <defs>
-                <filter id="bevel" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" result="blur"/>
-                  <feSpecularLighting in="blur" surfaceScale="5" specularConstant=".9" specularExponent="20" lighting-color="#f5d97a" result="spec">
-                    <fePointLight x="-60" y="-40" z="150"/>
-                  </feSpecularLighting>
-                  <feComposite in="spec" in2="SourceAlpha" operator="in" result="specOut"/>
-                  <feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
-                </filter>
-              </defs>
-              <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,215,0,.6)" stroke-width="2"/>
-              <text id="monoText" x="50" y="58" text-anchor="middle" font-size="30" font-family="Cormorant Garamond, serif" fill="rgba(255,215,0,.92)" filter="url(#bevel)">Y</text>
-            </svg>
-          </div>
+  <!-- top buttons -->
+  <div class="topbar">
+    <div class="star-btn" id="langStar">EN</div>
+    <div class="caption" id="langLabel">Switch → عربي</div>
+  </div>
+  <div class="wish">
+    <div class="star-btn" id="wishStar">★</div>
+    <div class="caption">أوصِليلي</div>
+  </div>
 
-          <!-- Writing area fills the page -->
-          <article class="message handwrite" id="message"
-                   aria-label="نص الرسالة"
-                   data-content="يا من سكنت الفؤاد، 
-أكتبُ إليكِ على مَهَلٍ كأن القلمَ ريشةُ طائرٍ تمرُّ فوقَ صفحةِ سماء. 
-كلُّ نبضةٍ تُنشد اسمكِ بالعربية — and sometimes in English — 
-to say that Love speaks in every language we share.
-أعدكِ بأن أبقى سندًا، ودفئًا في البرد، ونورًا حين تتعب الدروب.
-Let this letter be a keepsake of our moments; a gentle vow, written by a steady heart.
-بقلبٍ مُحبّ — إلى الأبد."></article>
-
-          <!-- caret -->
-          <span id="caret" class="caret" aria-hidden="true"></span>
-
-          <!-- Bottom signature + small seal (hidden until writing ends) -->
-          <div class="signature-block" id="signatureBlock" aria-hidden="true">
-            <div class="signature-name" id="signatureName">يونس كمال</div>
-            <div class="wax-seal small" id="finalSeal" aria-hidden="true">
-              <svg class="seal-svg" viewBox="0 0 100 100" aria-hidden="true">
-                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,215,0,.55)" stroke-width="2"/>
-                <text id="monoTextSmall" x="50" y="58" text-anchor="middle" font-size="28" font-family="Cormorant Garamond, serif" fill="rgba(255,215,0,.9)">Y ♥ S</text>
-              </svg>
-            </div>
-          </div>
-        </div>
+  <main class="stage">
+    <!-- Stage 1 -->
+    <section class="panel show" id="stage1">
+      <div class="center ar">
+        <h2>✦ اللغز الأول ✦</h2>
+        <p>أدخلي التاريخ</p>
+        <input id="dateInput" type="text" inputmode="numeric" pattern="[0-9/]*" dir="ltr" autocomplete="off" placeholder="" maxlength="10" aria-label="أدخلي التاريخ بصيغة يوم/شهر/سنة"/>
+        <div class="inline-note" id="dateNote"></div>
+        <button id="dateBtn" class="glow-btn">إرسال</button>
+        <p id="errorMsg" style="color:#f88;display:none">❌ التاريخ غير صحيح</p>
       </div>
     </section>
 
-    <div class="particles" id="particles" aria-hidden="true"></div>
+    <!-- Stage 2 -->
+    <section class="panel" id="stage2">
+      <div class="center ar" id="arabicIntro"></div>
+      <button id="startBtn" class="glow-btn">✨ استمري</button>
+    </section>
+
+    <!-- Stage 3 -->
+    <section class="panel" id="stage3">
+      <div class="center">
+        <div id="liveText" class="en"></div>
+      </div>
+    </section>
   </main>
 
-  <script src="script.js"></script>
+  <!-- Modal -->
+  <div class="overlay" id="overlay">
+    <div class="modal ar">
+      <h3>هناك أشخاص يمرّون في حياتنا كالعابرين، وهناك مَن يتركون بصمة لا تُمحى…
+لو أردتِ أن تكتبي عن شخص غيّر نظرتكِ للحياة وأصبح له مكان مختلف في قلبك، كيف ستصفينه؟⭐</h3>
+      <textarea id="answerBox" placeholder="اكتبي كل الي ببالك هنا"></textarea>
+      <div class="row">
+        <button id="cancelAsk" class="glow-btn">إلغاء</button>
+        <button id="sendAsk" class="glow-btn" title="Ctrl+Enter">إرسال</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const CORRECT_DATE_DIGITS="22102023";
+
+const ARABIC_INTRO=`عمري أهنئچ على حل اللغز الأول، هسه نبدي بالثاني  
+ها وخلي أكلچ شغلة: استوحيت هذا التصميم الي رح تشوفينه هسه منچ  
+لأن إنتي كلشي بيچ لامع ومميز  
+ومن دخلتي حياتي و عرفتچ صارت حياتي تترتب وتكون أفضل من قبل آلاف المرات  
+لأن دخل بحياتي كائن ما بين البشر والجن والملك...  
+كائن ماكو مثله بهذا الكون، واللي هو إنتي طبعًا ♥
+و هسه هل عندكِ شكٌّ أنكِ أحلى و اغلا امرأةٍ في الدنيا؟`;
+
+const EN_TEXT=`Among all the beauty in this universe,
+there is one thing that remains truly exceptional.
+
+Unlike any time,
+incomparable to any place.
+
+It is the secret that makes every moment with you
+worth more than a lifetime,
+and makes my eyes see the world more beautiful
+whenever you smile.
+
+I searched for it in words but could not find it,
+I reached for it among the stars but could not touch it,
+until I found it before me… one and only, with no second.
+
+What is the thing that cannot be explained,
+cannot be repeated,
+and exists only once in this entire universe?
+
+Write the answer with the voice of your heart,
+for the heart knows before the mind.`;
+
+const AR_TEXT=`بين كل ما في هذا الكون من جمال،
+هناك شيء واحد يظل استثنائيًا،
+لا يشبه أي وقت،
+ولا يقارن بأي مكان.
+
+هو السر الذي يجعل اللحظة معكِ
+أغلى من العمر كله،
+ويجعل عينيّ ترى العالم أجمل
+حين تبتسمين.
+
+بحثتُ عنه بين الكلمات فلم أجده،
+وفتشتُ عنه بين النجوم فلم ألمسه،
+حتى وجدته أمامي… واحدًا فقط، لا ثاني له.
+
+ما هو الشيء الذي لا يُفسَّر،
+ولا يُكرَّر،
+ولا يوجد إلا في هذا الكون مرة واحدة؟
+
+اكتبي الجواب بصوت قلبك،
+فالقلب يعرف قبل العقل.`;
+
+const qs=(s,sc=document)=>sc.querySelector(s);
+const qsa=(s,sc=document)=>Array.from(sc.querySelectorAll(s));
+
+const s1=qs("#stage1");
+const s2=qs("#stage2");
+const s3=qs("#stage3");
+const dateBtn=qs("#dateBtn");
+const dateInput=qs("#dateInput");
+const dateNote=qs("#dateNote");
+const errorMsg=qs("#errorMsg");
+const startBtn=qs("#startBtn");
+const liveText=qs("#liveText");
+const arabicIntro=qs("#arabicIntro");
+const flash=qs("#flash");
+
+// ===== Utilities =====
+function toAsciiDigits(str){
+  if(!str) return "";
+  const map1 = {"٠":"0","١":"1","٢":"2","٣":"3","٤":"4","٥":"5","٦":"6","٧":"7","٨":"8","٩":"9"};
+  const map2 = {"۰":"0","۱":"1","۲":"2","۳":"3","۴":"4","۵":"5","۶":"6","۷":"7","۸":"8","۹":"9"};
+  return str.replace(/[٠-٩]/g,ch=>map1[ch]).replace(/[۰-۹]/g,ch=>map2[ch]);
+}
+function normalizeDigits(v){
+  return toAsciiDigits(v||"").replace(/[^0-9]/g,"").slice(0,8);
+}
+function formatAsDateMask(v){
+  const d=normalizeDigits(v);
+  const p1=d.slice(0,2),p2=d.slice(2,4),p3=d.slice(4,8);
+  return [p1,p2,p3].filter(Boolean).join("/");
+}
+function isCorrectDate(v){return normalizeDigits(v)===CORRECT_DATE_DIGITS}
+
+function markValidity(ok){
+  dateInput.classList.toggle("ok",ok);
+  dateInput.classList.toggle("bad",!ok && dateInput.value.length>0);
+  dateNote.textContent = ok? "✓ شكراً — مضبوط" : (dateInput.value? "تنسيق: يوم/شهر/سنة" : "");
+}
+
+dateInput.addEventListener("input",()=>{
+  const caret=dateInput.selectionStart;
+  const before=dateInput.value;
+  const masked=formatAsDateMask(before);
+  dateInput.value=masked;
+  markValidity(isCorrectDate(masked));
+});
+dateInput.addEventListener("keydown",(e)=>{
+  if(e.key==="Enter") dateBtn.click();
+});
+
+// ===== Date Gate: handle passcode submission =====
+dateBtn.onclick=()=>{
+ const ok=isCorrectDate(dateInput.value);
+ markValidity(ok);
+ if(ok){
+   errorMsg.style.display="none";
+   // Play name animation, then continue to Stage 2 using cinematic transition
+   runNameAnimation().then(()=>{
+     arabicIntro.innerHTML="<p class='ar fade-line'>"+ARABIC_INTRO.replace(/\n/g,"<br>")+"</p>";
+     switchStage(s1, s2);
+   });
+ } else {
+   errorMsg.style.display="block";
+   s1.classList.add("shake");
+   setTimeout(()=>s1.classList.remove("shake"),500);
+ }
+};
+
+// ===== Stage 2 → Stage 3 =====
+startBtn.onclick=()=>{
+  switchStage(s2, s3, () => {
+    showLines(liveText, EN_TEXT, "en");
+    flashPulse();
+  });
+};
+
+function showLines(el,text,cls){
+ el.innerHTML="";
+ let lines=text.trim().split("\n");
+ lines.forEach((ln,i)=>{
+   if(!ln.trim()) return;
+   let p=document.createElement("p");
+   p.textContent=ln;
+   p.className=`${cls} fade-line`;
+   p.style.animationDelay=`${i*0.35}s`;
+   el.appendChild(p);
+ });
+}
+
+function flashPulse(){
+  flash.classList.add("show");
+  if(navigator.vibrate) try{navigator.vibrate(10)}catch{}
+  setTimeout(()=>flash.classList.remove("show"),800);
+}
+
+let currentLang=localStorage.getItem("riddle_lang")||"EN";
+const langStar=document.getElementById("langStar");
+const langLabel=document.getElementById("langLabel");
+function applyLang(){
+  if(currentLang==="EN"){
+    if(s3.classList.contains("show")) showLines(liveText,EN_TEXT,"en");
+    langStar.textContent="EN";
+    langLabel.textContent="Switch → عربي";
+  } else {
+    if(s3.classList.contains("show")) showLines(liveText,AR_TEXT,"ar");
+    langStar.textContent="AR";
+    langLabel.textContent="Switch → EN";
+  }
+}
+langStar.onclick=()=>{
+ if(!s3.classList.contains("show")) return;
+ flashPulse();
+ currentLang = currentLang==="EN"? "AR" : "EN";
+ localStorage.setItem("riddle_lang",currentLang);
+ applyLang();
+};
+
+const overlay=document.getElementById("overlay");
+const wishStar=document.getElementById("wishStar");
+const cancelAsk=document.getElementById("cancelAsk");
+const sendAsk=document.getElementById("sendAsk");
+const answerBox=document.getElementById("answerBox");
+
+function openModal(){overlay.classList.add("show"); setTimeout(()=>answerBox.focus(),50)}
+function closeModal(){overlay.classList.remove("show")}
+
+wishStar.onclick=()=>openModal();
+cancelAsk.onclick=()=>closeModal();
+overlay.addEventListener("click",(e)=>{ if(e.target===overlay) closeModal() })
+document.addEventListener("keydown",(e)=>{ if(e.key==="Escape") closeModal() })
+
+sendAsk.onclick=()=>{
+ const val=answerBox.value.trim();
+ if(!val)return;
+ const blob=new Blob([val],{type:"text/plain;charset=utf-8"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="her-answer.txt";
+ a.click();
+ URL.revokeObjectURL(a.href);
+ confettiBurst(innerWidth/2, innerHeight/3);
+ closeModal();
+ answerBox.value="";
+};
+document.addEventListener("keydown",(e)=>{ if(e.ctrlKey && e.key==="Enter" && overlay.classList.contains("show")) sendAsk.click() })
+
+// ===== Button ripple effect =====
+function enableRipples(){
+  try{ if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; }catch{}
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.glow-btn, .star-btn');
+    if(!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    r.style.left = x+'px'; r.style.top = y+'px';
+    btn.appendChild(r);
+    setTimeout(()=>r.remove(), 700);
+  });
+}
+
+const sky=document.getElementById("sky"),ctx=sky.getContext("2d");
+let stars=[]; let shooters=[];
+function resize(){sky.width=innerWidth;sky.height=innerHeight}
+resize();
+window.addEventListener("resize",resize);
+for(let i=0;i<180;i++)stars.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.3+0.3,tw:Math.random()*0.6+0.4});
+
+function spawnShooter(){
+  const fromTop=Math.random()<0.6;
+  const x= fromTop? Math.random()*innerWidth*0.7 : -50;
+  const y= fromTop? -20 : Math.random()*innerHeight*0.5;
+  const dx=2+Math.random()*3, dy=1+Math.random()*2;
+  shooters.push({x,y,dx,dy,life:0,max:120});
+}
+
+function draw(){
+ ctx.clearRect(0,0,sky.width,sky.height);
+ ctx.fillStyle="#fff";
+ stars.forEach(s=>{
+   ctx.globalAlpha=0.5+Math.sin((performance.now()/1000)*s.tw + s.x)*0.5;
+   ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+ });
+ if(Math.random()<0.02 && shooters.length<3) spawnShooter();
+ shooters = shooters.filter(sh=>{
+   sh.x+=sh.dx; sh.y+=sh.dy; sh.life++;
+   ctx.globalAlpha=0.9;
+   ctx.beginPath(); ctx.arc(sh.x,sh.y,1.5,0,Math.PI*2); ctx.fill();
+   const grad=ctx.createLinearGradient(sh.x-30,sh.y-30,sh.x,sh.y);
+   grad.addColorStop(0,"rgba(255,255,255,0)");
+   grad.addColorStop(1,"rgba(255,255,255,.8)");
+   ctx.strokeStyle=grad; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(sh.x-30,sh.y-30); ctx.lineTo(sh.x,sh.y); ctx.stroke();
+   return sh.life<sh.max && sh.x<-20+innerWidth && sh.y<-20+innerHeight;
+ });
+ requestAnimationFrame(draw);
+}
+draw();
+
+function confettiBurst(x,y){
+  for(let i=0;i<24;i++){
+    const el=document.createElement("div");
+    const hue=Math.floor(Math.random()*360);
+    el.className="confetti";
+    el.style.background=`hsl(${hue} 90% 60%)`;
+    el.style.left=`${x}px`; el.style.top=`${y}px`;
+    const dx=(Math.random()*2-1)*140+"px"; const dy=(Math.random()*2-0.2)*220+"px";
+    el.style.setProperty("--x","-50%");
+    el.style.setProperty("--y","-50%");
+    el.style.setProperty("--dx",dx); el.style.setProperty("--dy",dy);
+    el.style.animation=`confettiDrop ${800+Math.random()*600}ms ease-out forwards`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1600);
+  }
+}
+
+// Name animation logic
+function runNameAnimation(){
+  return new Promise((resolve)=>{
+    const scene=document.getElementById("nameScene");
+    const word=document.getElementById("nameWord");
+    const sub=document.getElementById("nameSub");
+    const NAME="YUNUS TABAREK";
+
+    // Reset
+    word.classList.remove("glow");
+    word.innerHTML="";
+    sub.style.opacity=0; sub.style.transform="translateY(6px)";
+
+    scene.classList.add("show");
+
+    // Build letters inline in final layout
+    const chars=[...NAME];
+    chars.forEach(ch=>{
+      const span=document.createElement("span");
+      span.className="name-letter";
+      span.textContent = ch===" "? "\u00A0" : ch;
+      word.appendChild(span);
+    });
+
+    const letters=[...word.querySelectorAll(".name-letter")];
+    const vw=innerWidth, vh=innerHeight;
+    let maxEnd=0;
+
+    // Staggered fly-in
+    requestAnimationFrame(()=>{
+      letters.forEach((el,i)=>{
+        // Cinematic LTR fly-in: all letters sweep from the left with slight vertical jitter and blur
+        const baseX = vw*0.6;
+        const jx = Math.random()*120; // additional left start
+        const jy = (Math.random()*2-1)*50;
+        const rot = (Math.random()*16-8);
+        const dur = 780+Math.random()*420; // ms
+        const delay = i*110; // LTR order
+        el.style.transform=`translate(${-baseX - jx}px, ${jy}px) rotate(${rot}deg) scale(.96)`;
+        el.style.opacity="0";
+        el.style.filter="blur(8px) brightness(1.2)";
+        el.style.transition=`transform ${dur}ms cubic-bezier(.16,.84,.24,1), opacity ${dur}ms ease, filter ${dur}ms ease`;
+        const end=delay+dur; if(end>maxEnd) maxEnd=end;
+        setTimeout(()=>{
+          el.style.transform="translate(0,0) rotate(0deg) scale(1)";
+          el.style.opacity="1";
+          el.style.filter="blur(0px) brightness(1)";
+        }, delay);
+      });
+
+      // After all letters, glow then show subtitle
+      setTimeout(()=>{
+        word.classList.add("glow","shine");
+        setTimeout(()=>{
+          sub.style.opacity=1; sub.style.transform="translateY(0)";
+          const HOLD_MS=10000; // keep cinematic scene for 10s
+          setTimeout(()=>{
+            // Cinematic exit: letters drift upward with blur in LTR sequence
+            let maxExit=0;
+            letters.forEach((el,i)=>{
+              const edur=620+Math.random()*360;
+              const edelay=i*70; // LTR order
+              const ex=(Math.random()*2-1)*90;
+              const ey=-(vh*0.25 + Math.random()*120);
+              const erot=(Math.random()*14-7);
+              el.style.transition=`transform ${edur}ms ease, opacity ${edur}ms ease, filter ${edur}ms ease`;
+              const eend=edelay+edur; if(eend>maxExit) maxExit=eend;
+              setTimeout(()=>{
+                el.style.transform=`translate(${ex}px, ${ey}px) rotate(${erot}deg) scale(.96)`;
+                el.style.opacity="0";
+                el.style.filter="blur(6px)";
+              }, edelay);
+            });
+            // remove shine/glow and fade out scene near the end
+            setTimeout(()=>{ word.classList.remove("glow","shine"); }, Math.max(0, maxExit-400));
+            setTimeout(()=>{
+              scene.style.opacity='0';
+              setTimeout(()=>{ scene.classList.remove("show"); scene.style.opacity=''; resolve(); }, 650);
+            }, maxExit+80);
+          }, HOLD_MS);
+        }, 320);
+      }, maxEnd+150);
+    });
+  });
+}
+
+// ===== Cinematic Stage Switcher =====
+function switchStage(fromEl, toEl, onEnter){
+  if(fromEl){
+    fromEl.classList.remove('show');
+    fromEl.classList.add('stage-exit');
+    const onExitEnd=()=>{
+      fromEl.removeEventListener('animationend', onExitEnd);
+      fromEl.classList.remove('stage-exit');
+      fromEl.style.display='none';
+    };
+    fromEl.addEventListener('animationend', onExitEnd);
+  }
+  if(toEl){
+    toEl.style.display='';
+    toEl.classList.add('stage-enter');
+    // trigger layout
+    void toEl.offsetWidth;
+    toEl.classList.add('show');
+    const onEnterEnd=()=>{
+      toEl.removeEventListener('animationend', onEnterEnd);
+      toEl.classList.remove('stage-enter');
+    };
+    toEl.addEventListener('animationend', onEnterEnd);
+    if(typeof onEnter==='function') onEnter();
+  }
+}
+
+// Initial setup: always require the date (passcode) on every visit
+// ===== Init: always require the date on every visit =====
+function initOnLoad(){
+  // Ensure Stage 1 is active and inputs are reset
+  s1.style.display="";
+  s1.classList.add("show");
+  s2.classList.remove("show");
+  errorMsg.style.display="none";
+  dateInput.value="";
+  dateInput.classList.remove("ok","bad");
+  dateNote.textContent="";
+  // Do not auto-skip; make user enter the date each time
+  try{ localStorage.removeItem("riddle_solved"); }catch{}
+  // Apply language state and focus the passcode input
+  applyLang();
+  dateInput.focus();
+  // Mark UI as loaded for top bar/wish fade-ins
+  document.documentElement.classList.add('loaded');
+}
+document.addEventListener("DOMContentLoaded",initOnLoad);
+// enable global UI ripples
+enableRipples();
+</script>
 </body>
 </html>
